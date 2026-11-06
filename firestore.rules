@@ -1,0 +1,26 @@
+rules_version = '2';
+
+// Each player can read and write only their own progress document.
+// Everything else in the database is closed.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /users/{uid} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+
+      allow create, update: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(
+             ['levelsPassed', 'bestTimes', 'playedPuzzles', 'masterCelebrated', 'updatedAt'])
+        && request.resource.data.levelsPassed is map
+        && request.resource.data.bestTimes is map
+        && request.resource.data.playedPuzzles is list
+        && request.resource.data.playedPuzzles.size() < 20000
+        && request.resource.data.masterCelebrated is bool;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
