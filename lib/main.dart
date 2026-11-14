@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -11,18 +12,23 @@ import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  if (!kIsWeb) {
+    await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  }
 
   // Firebase is optional at runtime: if it is not configured yet, the game
   // still runs fully offline and the Google sign-in button is hidden.
+  // The web build is a preview only, so it skips Firebase.
   var firebaseReady = false;
-  try {
-    // On Android this reads android/app/google-services.json,
-    // which `flutterfire configure` creates.
-    await Firebase.initializeApp();
-    firebaseReady = true;
-  } catch (e) {
-    debugPrint('Firebase not configured, running offline only: $e');
+  if (!kIsWeb) {
+    try {
+      // On Android this reads android/app/google-services.json,
+      // which `flutterfire configure` creates.
+      await Firebase.initializeApp().timeout(const Duration(seconds: 8));
+      firebaseReady = true;
+    } catch (e) {
+      debugPrint('Firebase not configured, running offline only: $e');
+    }
   }
 
   final store = await LocalStore.open();

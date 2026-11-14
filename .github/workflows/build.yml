@@ -54,3 +54,40 @@ jobs:
           name: sudoku-debug-apk
           path: build/app/outputs/flutter-apk/app-debug.apk
           retention-days: 14
+
+  # Browser preview of the game. The built files are pushed to the
+  # web-build branch so they can be hosted anywhere.
+  web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Build web
+        run: |
+          flutter create --platforms=web --org com.raj3shj --project-name sudoku_app .
+          rm -f test/widget_test.dart
+          flutter pub get
+          # Bundle CanvasKit and fonts locally: no CDN downloads at runtime.
+          flutter build web --release --no-web-resources-cdn
+          # Load files relative to wherever the page is hosted.
+          sed -i 's#<base href="/">##' build/web/index.html
+          ls -la build/web
+
+      - name: Publish to web-build branch
+        run: |
+          cd build/web
+          git init -q -b web-build
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Web build of ${GITHUB_SHA::7}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" web-build

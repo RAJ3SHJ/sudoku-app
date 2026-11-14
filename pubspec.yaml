@@ -23,3 +23,16 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  # Bundled so the app never has to download fonts (works offline and on web).
+  fonts:
+    - family: AppSans
+      fonts:
+        - asset: assets/fonts/DejaVuSans.ttf
+        - asset: assets/fonts/DejaVuSans-Bold.ttf
+          weight: 700
+    - family: AppSerif
+      fonts:
+        - asset: assets/fonts/DejaVuSerif.ttf
+        - asset: assets/fonts/DejaVuSerif-Bold.ttf
+          weight: 700

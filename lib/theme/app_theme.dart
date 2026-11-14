@@ -81,7 +81,8 @@ class AppTheme {
   static const _blueDark = Color(0xFF7AB0FF);
 
   /// Serif type gives the board a printed-puzzle-book feel.
-  static const numberFont = 'serif';
+  static const numberFont = 'AppSerif';
+  static const uiFont = 'AppSans';
 
   static ThemeData light() => _build(
         brightness: Brightness.light,
@@ -113,6 +114,7 @@ class AppTheme {
 
     return ThemeData(
       useMaterial3: true,
+      fontFamily: uiFont,
       colorScheme: scheme,
       scaffoldBackgroundColor: background,
       appBarTheme: AppBarTheme(

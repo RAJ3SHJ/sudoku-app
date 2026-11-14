@@ -15,18 +15,18 @@ class GeneratedPuzzle {
   int get clueCount => puzzle.where((v) => v != 0).length;
 
   /// Short, stable ID for this puzzle, used to make sure a player never gets
-  /// the same puzzle twice (FNV-1a hash of the 81 cells, as hex).
+  /// the same puzzle twice.
   String get fingerprint => fingerprintOf(puzzle);
 
+  /// Two independent 31-bit hashes of the 81 cells, as hex. Every step stays
+  /// below 2^53, so phones and web browsers compute the same value.
   static String fingerprintOf(List<int> cells) {
-    // 64-bit FNV-1a, kept inside 63 bits so it is safe on every platform.
-    var hash = 0x4bf29ce484222325;
-    const prime = 0x100000001b3;
+    var a = 17, b = 23;
     for (final v in cells) {
-      hash ^= v;
-      hash = (hash * prime) & 0x7fffffffffffffff;
+      a = (a * 31 + v + 1) & 0x7fffffff;
+      b = (b * 131 + v + 7) & 0x7fffffff;
     }
-    return hash.toRadixString(16);
+    return '${a.toRadixString(16)}${b.toRadixString(16).padLeft(8, '0')}';
   }
 }
 
